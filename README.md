@@ -1,101 +1,42 @@
-# demo-modernize-nodejs
+# demo-modernize-backend
 
-This is a tutorial to deploy manually this strapi application demo. The deployment is based on an Unbuntu 20.04. It illustrate a standalone deployment mixing every part of the global application in one single server. 
+This is the "new" version of this application. By "new", I mean this application is going to move from a [standalone deployment](https://github.com/pilgrimstack/demo-modernize-backend/tree/old) to a scalable architecture using cloud services at OVHcloud.
 
-In case of lack of power, we'll have to add more CPU and RAM. To avoid down time, a good practice should be to replicate the server and add synchronisation mechanism for the data (the statefull part), to use floating IP and to manage a master/slave system to switch IP in case of issue.
+# Create a Managed Database
 
-We won't cover the verticale sacling and the HA part here.
+We'll log in to the OVHcloud web console, go to "Public Cloud" and create a database. Then we'll add a user and allow IPs.
 
-# Install a local DB
+![Add a user and allow IPs](public/user_ip.png)
 
-First we need to install MongoDB.
+# Create a public container on OVHcloud Object Storage
 
-```bash
-wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-sudo apt update
-sudo apt install -y mongodb-org
-sudo systemctl start mongod
-```
+## Configure an S3 access at OVHcloud
 
-Then we will create the user.
+Follow [this tutorial](https://docs.ovh.com/gb/en/storage/getting_started_with_the_swift_S3_API/) in order to setup an S3 access to our Object Storage service.
+
+## Create a public "bucket"
+
+We'll check our S3 credentials are working at OVHcloud by creating our bucket and open read access publicaly.
 
 ```bash
-mongo admin --eval "db.getSiblingDB('dummydb').createUser({user: 'dummyuser', pwd: 'dummysecret', roles: ['readWrite']})"
-mongo admin --eval "db.getSiblingDB('admin').createUser({user: 'dummyuser', pwd: 'dummysecret', roles: ['readWrite']})"
+aws --profile default s3 mb s3://demo-scale
+aws s3api put-bucket-acl --bucket demo-scale --acl public-read
 ```
 
-# Install Nginx
+# Deploy instances 
 
-Nginx will manage the http connexions and be a proxy for nodejs applications.
+The next action is to use the deployment scripts.
 
-```bash
-sudo apt install -y nginx
-```
-
-Then we'll configure Nginx remplacing in /etc/nginx/sites-available/default the following content.
-
-```
-server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-        root /var/www/html;
-        index index.html;
-        server_name _;
-        location /api {
-                rewrite ^/api/?(.*)$ /$1 break;
-                proxy_pass http://localhost:1337/;
-                proxy_http_version 1.1;
-                proxy_set_header X-Forwarded-Host $host;
-                proxy_set_header X-Forwarded-Server $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto $scheme;
-                proxy_set_header Host $http_host;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "Upgrade";
-                proxy_pass_request_headers on;
-
-        }
-        location / {
-                proxy_pass http://localhost:3000/;
-        }
-}
-```
-
-Now we can reload the configuration
-
-```bash
-sudo systemctl reload nginx.service
-```
-
-# Install nodejs
-
-We'll add a new repository to get nodejs 14.
-
-```bash
-curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
-sudo apt update
-sudo apt install nodejs
-```
-
-# The backend application
-
-## Deploy the backend application
-
-Now we'll deploy this application by cloning the repository.
+## Get the automation scripts
 
 ```bash
 cd ~
-git clone https://github.com/pilgrimstack/demo-modernize-nodejs.git
-cd demo-modernize-nodejs/backend
-git checkout --force old
-npm install
+git clone git@github.com:pilgrimstack/demo-modernize-deploy.git
+cd demo-modernize-deploy
 ```
+## Configure the environement
 
-## Configure the backend application
-
-In your home repository, create an 'env' file like this adding your information:
+We'll copy and edit the env file to .env-new
 
 ```
 # For config/database.js
@@ -111,65 +52,28 @@ ADMIN_JWT_SECRET=''
 HOST='0.0.0.0'
 PORT=1337
 STRAPI_URL=''
+# For config/plugins.js
+AWS_ACCESS_KEY_ID=''
+AWS_ACCESS_SECRET=''
+AWS_REGION=''
+AWS_BUCKET=''
+CDN_DOMAIN=''
+CUSTOM_S3_ENDPOINT=''
+ACCESS_LEVEL='public-read
 ```
 
-STRAPI_URL should be something like http://yourdomain/api
+Where:
+* AWS_* are the aws credentials we created before
+* CDN_DOMAIN is the object storage container address (not the S3 one), should be somehting like 'https://storage.yourregion.cloud.ovh.net/v1/AUTH_xxxxx/demo-scale'
+* CUSTOM_S3_ENDPOINT is the S3 API endpoint 'https://s3.yourregion.cloud.ovh.net'
 
-Then we'll link the configuration in the application folder.
+## Run the automated deployment
 
 ```bash
-cd ~/demo-modernize-nodejs/backend
-ln -s ~/env .env
+./start.sh
+openstack server list
 ```
-## Run the backend application
-
-Now we are ready to run the backend application.
-
-```bash
-npm run develop
-```
-
-# The frontend application
-
-## Deploy the frontend application
-
-This is also a nodejs based application, do the following to deploy it.
-
-```bash
-cd ~/demo-modernize-nodejs/frontend
-npm install
-```
-
-## Confirgure the frontend application
-
-The backend and the frontend application share the same configuration, that's why we use symbolik links.
-
-```bash
-ln -s ~/env .env.local
-```
-
-## Run the frontend application
-
-Now you are ready to run your application and test it.
-
-```bash
-npm run dev
-```
-
-# Populate Strapi
-
-Finaly, you can add posts in strapi after creating your account.
-
-Go to http://yourdomain/api to add posts.
-
-![Add posts](public/add_posts.png)
-
-Don't forget to open the API call required to list the posts from the frontend.
-
-![Open the API calls](public/open_api.png)
 
 # Check the result
 
-Now, on http://yourdomain/ you should see a minimalistic blog like this one.
-
-![demo screenshot](public/demo_screenshot.png)
+Now, if you configured properly your DNS zone, go to http://yourdomain/api/ to populate the posts and to 'http://yourdomain' to get the result.

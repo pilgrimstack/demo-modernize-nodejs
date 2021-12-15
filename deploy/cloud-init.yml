@@ -1,0 +1,21 @@
+#cloud-config
+
+bootcmd:
+  - curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+
+package_update: true
+# package_upgrade: true
+# apt_reboot_if_required: true
+
+packages:
+  - nodejs
+  - jq
+  - nginx
+#  - npm
+#  - mongodb-clients
+
+runcmd:
+  - [ "chown",  "ubuntu:", "/home/ubuntu/init-app.sh" ]
+  - [ "chown", "ubuntu:", "/home/ubuntu/.env" ]
+  - chmod +x /home/ubuntu/init-app.sh
+  - sudo -H -u ubuntu /home/ubuntu/init-app.sh
