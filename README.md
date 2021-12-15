@@ -32,7 +32,9 @@ The next action is to use the deployment scripts.
 ```bash
 cd ~
 git clone git@github.com:pilgrimstack/demo-modernize-nodejs.git
-cd demo-modernize-nodejs/deploy
+cd demo-modernize-nodejs
+git checkout new
+cd deploy
 ```
 ## Configure the environement
 
