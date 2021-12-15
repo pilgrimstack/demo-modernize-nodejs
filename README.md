@@ -1,4 +1,4 @@
-# demo-modernize-backend
+# demo-modernize-nodejs
 
 ![OVH logo](public/ovhcloud-logo.png)
 
