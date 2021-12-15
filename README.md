@@ -1,6 +1,6 @@
 # demo-modernize-backend
 
-This is the "new" version of this application. By "new", I mean this application is going to move from a [standalone deployment](https://github.com/pilgrimstack/demo-modernize-backend/tree/old) to a scalable architecture using cloud services at OVHcloud.
+This is the "new" version of this application. By "new", I mean this application is going to move from a [standalone deployment](https://github.com/pilgrimstack/demo-modernize-nodejs/tree/old) to a scalable architecture using cloud services at OVHcloud.
 
 # Create a Managed Database
 
@@ -31,8 +31,8 @@ The next action is to use the deployment scripts.
 
 ```bash
 cd ~
-git clone git@github.com:pilgrimstack/demo-modernize-deploy.git
-cd demo-modernize-deploy
+git clone git@github.com:pilgrimstack/demo-modernize-nodejs.git
+cd demo-modernize-nodejs/deploy
 ```
 ## Configure the environement
 
