@@ -1,4 +1,4 @@
-# demo-modernize-backend
+# demo-modernize-nodejs
 
 This is the "new" version of this application. By "new", I mean this application is going to move from a [standalone deployment](https://github.com/pilgrimstack/demo-modernize-nodejs/tree/old) to a scalable architecture using cloud services at OVHcloud.
 
