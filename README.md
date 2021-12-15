@@ -1,6 +1,6 @@
 # demo-modernize-backend
 
-![OVH logo](public/ovhlogo.png)
+![OVH logo](public/ovhcloud-logo.png)
 
 There is no code here :) The code is placed on two different branches called 'old' and 'new'.
 
