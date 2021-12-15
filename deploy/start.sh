@@ -11,7 +11,7 @@ fi
 
 for i in 01 02; do
 openstack server create \
-  --image "Ubuntu 21.04" \
+  --image "Ubuntu 20.10" \
   --flavor d2-8 \
   --key gw3 \
   --port demo-modernize-$i \
