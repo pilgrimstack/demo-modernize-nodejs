@@ -88,8 +88,9 @@ Now we'll deploy this application by cloning the repository.
 ```bash
 cd ~
 git clone https://github.com/pilgrimstack/demo-modernize-nodejs.git
-cd demo-modernize-nodejs/backend
+cd demo-modernize-nodejs
 git checkout --force old
+cd backend
 npm install
 ```
 
