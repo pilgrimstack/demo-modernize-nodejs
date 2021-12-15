@@ -87,8 +87,8 @@ Now we'll deploy this application by cloning the repository.
 
 ```bash
 cd ~
-git clone https://github.com/pilgrimstack/demo-modernize-backend.git
-cd demo-modernize-backend
+git clone https://github.com/pilgrimstack/demo-modernize-nodejs.git
+cd demo-modernize-nodejs/backend
 git checkout --force old
 npm install
 ```
@@ -118,7 +118,7 @@ STRAPI_URL should be something like http://yourdomain/api
 Then we'll link the configuration in the application folder.
 
 ```bash
-cd ~/demo-modernize-backend
+cd ~/demo-modernize-nodejs/backend
 ln -s ~/env .env
 ```
 ## Run the backend application
@@ -136,9 +136,7 @@ npm run develop
 This is also a nodejs based application, do the following to deploy it.
 
 ```bash
-cd ~
-git clone https://github.com/pilgrimstack/demo-modernize-frontend.git
-cd demo-modernize-frontend
+cd ~/demo-modernize-nodejs/frontend
 npm install
 ```
 
